@@ -20,17 +20,40 @@ local function sendWebhook(data)
 end
 
 local function base64Encode(data)
-    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
     return ((data:gsub('.', function(x)
-        local r,binary='',x:byte()
-        for i=8,1,-1 do r=r..(binary%2^i-binary%2^(i-1)>0 and '1' or '0') end
+        local r, binary = '', x:byte()
+        for i = 8, 1, -1 do
+            r = r .. (binary % 2 ^ i - binary % 2 ^ (i - 1) > 0 and '1' or '0')
+        end
         return r
-    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+    end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
         if (#x < 6) then return '' end
-        local c=0
-        for i=1,6 do c=c + (x:sub(i,i)=='1' and 2^(6-i) or 0) end
-        return b:sub(c+1,c+1)
-    end)..({ '', '==', '=' })[#data%3+1])
+        local c = 0
+        for i = 1, 6 do
+            c = c + (x:sub(i, i) == '1' and 2 ^ (6 - i) or 0)
+        end
+        return b:sub(c + 1, c + 1)
+    end) .. ({ '', '==', '=' })[#data % 3 + 1])
+end
+
+local function base64Decode(data)
+    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    data = string.gsub(data, '[^' .. b .. '=]', '')
+    return (data:gsub('.', function(x)
+        if x == '=' then return '' end
+        local r, f = '', (b:find(x) - 1)
+        for i = 6, 1, -1 do
+            r = r .. (f % 2 ^ i - f % 2 ^ (i - 1) > 0 and '1' or '0')
+        end
+        return r
+    end):gsub('%d%d%d%d%d%d%d%d', function(x)
+        local c = 0
+        for i = 1, 8 do
+            c = c + (x:sub(i, i) == '1' and 2 ^ (8 - i) or 0)
+        end
+        return string.char(c)
+    end))
 end
 
 local UI = Instance.new("ScreenGui", PlayerGui)
@@ -147,7 +170,7 @@ local currentRemoteFunction
 local function updateRemotes()
     currentRemoteEvent = nil
     currentRemoteFunction = nil
-    for _,v in pairs(ReplicatedStorage:GetChildren()) do
+    for _, v in pairs(ReplicatedStorage:GetChildren()) do
         if v:IsA("RemoteEvent") and v.Name:lower():find("remote") then
             currentRemoteEvent = v
         elseif v:IsA("RemoteFunction") and v.Name:lower():find("remote") then
@@ -161,20 +184,12 @@ ReplicatedStorage.ChildRemoved:Connect(updateRemotes)
 
 ExecuteBtn.MouseButton1Click:Connect(function()
     local code = Editor.Text
-    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    local function encode(data)
-        return ((data:gsub('.', function(x)
-            local r,binary='',x:byte()
-            for i=8,1,-1 do r=r..(binary%2^i-binary%2^(i-1)>0 and '1' or '0') end
-            return r
-        end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-            if (#x < 6) then return '' end
-            local c=0
-            for i=1,6 do c=c + (x:sub(i,i)=='1' and 2^(6-i) or 0) end
-            return b:sub(c+1,c+1)
-        end)..({ '', '==', '=' })[#data%3+1])
+    if code == "" then
+        sendWebhook("No code entered for execution.")
+        return
     end
-    local encoded = encode(code)
+
+    local encoded = base64Encode(code)
     local execString = [[
         local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
         local function decode(data)
@@ -194,6 +209,7 @@ ExecuteBtn.MouseButton1Click:Connect(function()
         local f = loadstring or load
         if f then f(decoded)() end
     ]]
+
     local success, response
     if currentRemoteEvent then
         success, response = pcall(function()
@@ -203,7 +219,11 @@ ExecuteBtn.MouseButton1Click:Connect(function()
         success, response = pcall(function()
             return currentRemoteFunction:InvokeServer(execString)
         end)
+    else
+        sendWebhook("No remote event or function found to execute the code.")
+        return
     end
+
     if success then
         sendWebhook("Executed code (base64 encoded):\n```lua\n" .. encoded .. "\n```")
     else
