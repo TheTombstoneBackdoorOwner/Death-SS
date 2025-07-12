@@ -1,3 +1,5 @@
+game:GetService("ReplicatedStorage").AmbilIkan:Destroy()
+
 print("Backdoor Death // Successfully booted up!")
 local function debug(msg)
 	if 0 == 1 then 
